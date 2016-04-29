@@ -22,4 +22,17 @@ threadwrapper.o:
 clean:
 	rm -f test *.o *.a *-wrapper.* *.so
 
-.PHONY: clean all
+purelibc:
+	gcc -c -fPIC purelibctrace.c
+	gcc -shared -o purelibctrace.so purelibctrace.o
+	echo "export LD_PRELOAD=libpurelibc.so:$(PREFIX)/purelibctrace.so"
+
+install: libthreadwrapper.so
+	cp libthreadwrapper.so /usr/lib
+	chmod 755 /usr/lib/libthreadwrapper.so
+	ldconfig
+
+uninstall:
+	rm /usr/lib/libthreadwrapper.so
+
+.PHONY: clean all purelibc install uninstall
