@@ -1,0 +1,46 @@
+
+multilibwrapper allows you to have multiple instances of any shared library loaded for a single process as if by using dlmopen(), but retaining the normal interface of each library.
+The tool is divided in 2 parts:
+    1. A parser that reads the header files and produces the source for the wrapper of each function plus 4 functions to manage multiple loaded instances of the library. The result can then be compiled in an object file to be linked as needed.
+    2. A small wrapper for pthread_create() and clone(), to be linked first in the application to manage the assignment of the parent's library instance to new threads.
+
+
+HOWTO
+Given an application that uses a certain library, the corresponding multilibwrapper can be generated and simply linked to the original code. The only mandatory requirements are:
+    - the header files of said library
+    - the .so file of said library
+    - linking the object files with the following flags: "-ldl -lpthread" (multilibwrappers use dlmopen and thread variables to operate)
+
+However, in applications that use threading, to make sure each new thread starts with the same library instance of its parent, you need to link the libthreadwrapper.so shared library as well (as first). To do so you need to install libthreadwrapper.so.
+
+multilibparser.py is a script that parses the header files and generates the wrapper.
+Example usage:
+    python multilibparser.py libshared.so /home/username/project/include/header2.h /home/username/project/include/header1.h
+
+This command will generate 2 files: libshared-wrapper.c and libshared-wrapper.h, source and header of the library wrapper.
+
+The Makefile calls this script and compiles the results and libthreadwrapper.so. It can be easily integrated in an already existing makefile by calling:
+    make -C ./multilibwrapper PREFIX=$(PREFIX) HEADERS="$(HEADERS)" DINLIB=$(DINLIB) CFLAGS="$(CFLAGS)"
+
+Where PREFIX is the base directory of the project, HEADERS is the header files list, and DINLIB is the name of the library to be wrapped.
+
+The example folder contains a simple example.
+
+
+FUNCTIONS
+
+int add_${libname}_handle()
+    Adds a new library instance (and immediatly starts using it). Returns the new library descriptor, or -1 on error.
+
+int current_${libname}_handle()
+    Simply returns the current instance's descriptor.
+
+int switch_${libname}_handle(int ld)
+    Changes the library instance the process (or thread) is currently using to ld. Returns the old instance descriptor, or -1 on error.
+
+int switch_${libname}_default_handler(int ld)
+    Changes the default library instance the process is currently using to ld. Returns the old instance descriptor, or -1 on error. Only needed if not using libthreadwrapper.so.
+
+
+
+
