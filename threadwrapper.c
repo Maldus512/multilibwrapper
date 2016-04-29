@@ -70,7 +70,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_
 }
 
 
-//TODO: manage thread creation
+/*
 int clone(int (*fn)(void *), void *child_stack, int flags, void *arg, ... ){
     va_list ap;
     pid_t *ptid, *ctid;
@@ -88,3 +88,4 @@ int clone(int (*fn)(void *), void *child_stack, int flags, void *arg, ... ){
 
     return dclone(fn, child_stack, flags, arg, ptid, tls, ctid);
 }
+*/
