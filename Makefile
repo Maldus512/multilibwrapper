@@ -4,11 +4,10 @@ PREFIX ?= $(PWD)
 DINLIBPATH= $(PREFIX)/$(DINLIB)
 LIBNAME=$(subst .so,,$(DINLIB))
 
-CFLAGS+=
 all: $(LIBNAME)-wrapper.o libthreadwrapper.so
 
 $(LIBNAME)-wrapper.o: $(LIBNAME)-wrapper.c
-	$(CC) -c -o $(LIBNAME)-wrapper.o -fPIC $(CFLAGS) -Iinclude $(LIBNAME)-wrapper.c
+	$(CC) -c -o $(LIBNAME)-wrapper.o -fPIC -ldl -lpthread $(CFLAGS) -Iinclude $(LIBNAME)-wrapper.c
 
 $(LIBNAME)-wrapper.c: multilibparser.py
 	python multilibparser.py $(DINLIBPATH) $(HEADERS) 

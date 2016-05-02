@@ -24,7 +24,7 @@ The Makefile calls this script and compiles the results and libthreadwrapper.so.
 
 Where PREFIX is the base directory of the project, HEADERS is the header files list, and DINLIB is the name of the library to be wrapped.
 
-The example folder contains a simple example.
+Some examples can be found in the examples folder.
 
 
 FUNCTIONS

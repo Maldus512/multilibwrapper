@@ -1,0 +1,23 @@
+Simple example with a custom "counting" library. The test program uses a default counter incremented with any input given but numbers; when a number is read, it starts an indipendent thread that counts down to 0 from that number on a different counter (in a different library instance).
+
+Example usage:
+    $ ./test
+    \n
+    main counter 0
+    \n
+    main counter 1
+    \n
+    main counter 2
+    \n
+    main counter 3
+    4
+    thread -519211264: current handle: 1
+    thread -519211264 counting: 0
+    thread -519211264 counting: 1
+    thread -519211264 counting: 2
+    \n
+    main counter 4
+    \n
+    main counter 5
+    thread -519211264 counting: 3
+    thread -519211264 done

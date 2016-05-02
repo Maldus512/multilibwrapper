@@ -1,0 +1,17 @@
+Example using both the picotcp library (http://www.picotcp.com/) and the dincounter library (see examples folder).
+It is a web server with a userspace tcp/ip stack (picotcp) on a virtual network (vde, http://vde.sourceforge.net/); through multilibwrapper, multiple instances of the picotcp stack are loaded, allowing more web servers to run as thread on the same process.
+Example usage:
+    $ sudo ./setup.sh 
+
+#on another termianl
+    $ sudo ./test
+    /tmp/vde.ctl 192.168.10.2 255.255.255.0
+#program output
+    /tmp/vde.ctl 192.168.10.3 255.255.255.0
+
+Both web servers can now be accessed by a browser, respectively at the address 192.168.10.2 and 192.168.10.3
+
+setup.sh is a script that creates a tap interface and runs a vde_switch. It has default values, but the network address, the netmask and the vde_switch socket can be passed like this:
+    $ sudo ./setup.sh /tmp/customsocket 10.10.10.10 255.0.0.0
+
+Administrator rights are necessary to use the tap interface.
