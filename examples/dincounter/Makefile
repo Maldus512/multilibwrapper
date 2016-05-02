@@ -28,7 +28,7 @@ libcounter-wrapper.o:
 
 
 clean:
-	rm -f test *.so *.o *.a 
+	rm -f test *.so *.o *.a *-wrapper.*
 	make -C ./multilibwrapper clean DINLIB=$(DINLIB)
 
 .PHONY: clean all
