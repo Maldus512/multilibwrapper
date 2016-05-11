@@ -27,6 +27,8 @@ $warning
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <limits.h>
+#include <sys/syscall.h>
 
 #include "wrapper.h"
 
@@ -51,6 +53,21 @@ static pthread_key_t ${libname}_handle_key;
 static struct lib_handle *${libname}_head;
 static struct lib_handle *default_${libname}_handle;
 
+static int lock;
+static struct timespec waiting = {
+    0,
+    1000
+};
+
+
+static int futex_wait(void *addr, int val1) {
+    return syscall(__NR_futex, addr, val1, NULL, NULL, 0);
+}
+
+static int futex_wake(void *addr, int n) {
+    return syscall(__NR_futex, addr, n, NULL, NULL, 0);
+}
+
 __attribute__ ((constructor((102)))) static void __wrapper_init(){
     int i;
     struct thread_manager_list *new, *tmp;
@@ -60,7 +77,7 @@ __attribute__ ((constructor((102)))) static void __wrapper_init(){
     new->current = current_${libname}_handle;
     new->switcher = switch_${libname}_handle;
     new->next = NULL;
-
+    lock = 0;
 
     if (thread_manager_head == NULL)
         thread_manager_head = new; 
@@ -89,9 +106,15 @@ static int get_${libname}_ld(){
 
 static struct lib_handle *get_${libname}_handle(int ld){
     struct lib_handle* aux;
+
+    while (__sync_lock_test_and_set(&lock, 1)) futex_wait(&lock, 1);
+
     aux = ${libname}_head;
     while (aux && (aux->ld != ld))
         aux = aux->next;
+
+    lock = 0;
+    futex_wake(&lock, INT_MAX);
     return aux;
 }
 
@@ -100,11 +123,10 @@ static void __delete(int ld){
     struct lib_handle *aux, *tmp;
     if (!${libname}_head)
         return;
+    aux = ${libname}_head;
     if (${libname}_head->ld == ld){
-        aux = ${libname}_head;
         ${libname}_head = ${libname}_head->next;
         dlclose(aux->handle);
-        free(aux->handle);
         free(aux);
     }
     else{
@@ -114,21 +136,24 @@ static void __delete(int ld){
             return;
         tmp = aux->next;
         aux->next = tmp->next;
-        dlclose(aux->handle);
-        free(tmp->handle);
+        dlclose(tmp->handle);
         free(tmp);
     }   
 }
 
 
 static void __destructor(void* handle){
+
+    while (__sync_lock_test_and_set(&lock, 1)) futex_wait(&lock, 1);
+    ((struct lib_handle*)handle)->thread_count--;
     if (((struct lib_handle*)handle)->thread_count < 1)
         __delete(((struct lib_handle*)handle)->ld);
-    else
-        ((struct lib_handle*)handle)->thread_count--;
+
+    lock = 0;
+    futex_wake(&lock, INT_MAX);
 }
 
-
+//TODO: manage concurrency problems
 /*add a new library instance*/
 int add_${libname}_handle(){
     char *error;
@@ -144,6 +169,8 @@ int add_${libname}_handle(){
     new->ld = get_${libname}_ld();
     new->thread_count = 1;
     
+    while (__sync_lock_test_and_set(&lock, 1)) futex_wait(&lock, 1);
+
     if (${libname}_head){
         aux = ${libname}_head->next;
         ${libname}_head->next = new;
@@ -155,6 +182,8 @@ int add_${libname}_handle(){
     if (pthread_setspecific(${libname}_handle_key, new) != 0)
         return -1;
 
+    futex_wake(&lock, INT_MAX);
+    lock = 0;
     return new->ld;
 }
 

@@ -9,7 +9,7 @@ WRAPPERFLAGS= -ldl -lpthread
  
 all: test
 
-test: main.o $(DINLIB) libcounter-wrapper.o
+test: $(DINLIB) libcounter-wrapper.o main.o 
 	$(CC) $(CFLAGS) -o test main.o libcounter-wrapper.o $(WRAPPERFLAGS)
 
 main.o: main.c
@@ -22,13 +22,9 @@ counter.o: counter.c
 	$(CC) $(CFLAGS) -fPIC -c counter.c
 
 libcounter-wrapper.o:
-	make -C ./multilibwrapper PREFIX=$(PREFIX) HEADERS="$(HEADERS)" DINLIB=$(DINLIB) CFLAGS="$(CFLAGS)"
-	cp ./multilibwrapper/libcounter-wrapper.o .
-	cp ./multilibwrapper/libcounter-wrapper.h .
-
+	mlgen $(DINLIB) $(HEADERS)
 
 clean:
 	rm -f test *.so *.o *.a *-wrapper.*
-	make -C ./multilibwrapper clean DINLIB=$(DINLIB)
 
 .PHONY: clean all

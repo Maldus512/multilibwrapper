@@ -15,27 +15,21 @@ CFLAGS+= -I$(PREFIX)/picotcp/build/include -I$(PREFIX)/picotcp/include -I$(PREFI
 LIBNAME1=$(subst .so,,$(DINLIB1))
 LIBNAME2=$(subst .so,,$(DINLIB2))
 
-WRAPPERFLAGS= -L. -ldl -lpthread
+WRAPPERFLAGS= -lthreadwrapper -ldl -lpthread
  
 SRC=picotcp/build/modules/*.c picotcp/build/lib/*.c
 OBJS=$(SRC:.c=.o)
 
 all: test
 
-test: $(DINLIB1) $(DINLIB2) libthreadwrapper.so $(LIBNAME1)-wrapper.o $(LIBNAME2)-wrapper.o picowebserver.o  
+test: $(DINLIB1) $(DINLIB2) $(LIBNAME1)-wrapper.o $(LIBNAME2)-wrapper.o picowebserver.o  
 	$(CC) $(CFLAGS)   -o test picowebserver.o $(LIBNAME1)-wrapper.o $(LIBNAME2)-wrapper.o   $(WRAPPERFLAGS) -lvdeplug       
 
 $(LIBNAME1)-wrapper.o: 
-	make -C ./multilibwrapper PREFIX=$(PREFIX) HEADERS="$(HEADERS1)" DINLIB=$(DINLIB1) CFLAGS="$(CFLAGS)"
-	cp ./multilibwrapper/$(LIBNAME1)-wrapper.o .
-	cp ./multilibwrapper/$(LIBNAME1)-wrapper.h .
-	cp ./multilibwrapper/libthreadwrapper.so .
+	mlgen $(DINLIB1) $(HEADERS1)
 
 $(LIBNAME2)-wrapper.o:
-	make -C ./multilibwrapper PREFIX=$(PREFIX) HEADERS="$(HEADERS2)" DINLIB=$(DINLIB2) CFLAGS="$(CFLAGS)"
-	cp ./multilibwrapper/$(LIBNAME2)-wrapper.o .
-	cp ./multilibwrapper/$(LIBNAME2)-wrapper.h .
-	cp ./multilibwrapper/libthreadwrapper.so .
+	mlgen $(DINLIB2) $(HEADERS2)
 
 $(DINLIB1): $(OBJS)
 	gcc -shared $(OBJS) -lvdeplug -o $(DINLIB1)
@@ -51,9 +45,7 @@ picowebserver.o: picowebserver.c
 	$(CC) $(CFLAGS) -c picowebserver.c
 
 clean:
-	rm -f test *.o *.a *-wrapper.* *.so
-	make -C ./multilibwrapper clean DINLIB=$(DINLIB1)
-	make -C ./multilibwrapper clean DINLIB=$(DINLIB2)
+	rm -f test *.o *.a *-wrapper.* *.so *.out
 	make -C ./dincounter clean
 
 picoclean:
