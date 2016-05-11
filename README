@@ -13,16 +13,13 @@ Given an application that uses a certain library, the corresponding multilibwrap
 
 However, in applications that use threading, to make sure each new thread starts with the same library instance of its parent, you need to link the libthreadwrapper.so shared library as well (as first). To do so you need to install libthreadwrapper.so.
 
-multilibparser.py is a script that parses the header files and generates the wrapper.
+multilibparser is a script that parses the header files and generates the wrapper.
+To use the tool call the mlgen command:
 Example usage:
-    python multilibparser.py libshared.so /home/username/project/include/header2.h /home/username/project/include/header1.h
+    mlgen multilibparser libshared.so /home/username/project/include/header2.h /home/username/project/include/header1.h
 
-This command will generate 2 files: libshared-wrapper.c and libshared-wrapper.h, source and header of the library wrapper.
-
-The Makefile calls this script and compiles the results and libthreadwrapper.so. It can be easily integrated in an already existing makefile by calling:
-    make -C ./multilibwrapper PREFIX=$(PREFIX) HEADERS="$(HEADERS)" DINLIB=$(DINLIB) CFLAGS="$(CFLAGS)"
-
-Where PREFIX is the base directory of the project, HEADERS is the header files list, and DINLIB is the name of the library to be wrapped.
+This command will generate 3 files: libshared-wrapper.c, its corrisponding object file (libshared-wrapper.o), and libshared-wrapper.h.
+After this, the object file can be linked with your source and its header, and you can use it in your application.
 
 Some examples can be found in the examples folder.
 
@@ -40,7 +37,3 @@ int switch_${libname}_handle(int ld)
 
 int switch_${libname}_default_handler(int ld)
     Changes the default library instance the process is currently using to ld. Returns the old instance descriptor, or -1 on error. Only needed if not using libthreadwrapper.so.
-
-
-
-
