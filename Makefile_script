@@ -1,0 +1,23 @@
+#!/usr/bin/make -f 
+
+ifdef PREFIX
+    DINLIBPATH= $(PREFIX)/$(DINLIB)
+else
+    DINLIBPATH= $(DINLIB)
+endif
+
+LIBNAME=$(subst .so,,$(DINLIB))
+
+all: $(LIBNAME)-wrapper.o
+
+$(LIBNAME)-wrapper.o: $(PREFIX)/$(LIBNAME)-wrapper.c
+	$(CC) -c -o $(PREFIX)/$(LIBNAME)-wrapper.o $(shell echo $(INCLUDES)) -Iinclude $(PREFIX)/$(LIBNAME)-wrapper.c
+
+$(PREFIX)/$(LIBNAME)-wrapper.c: multilibparser
+	./multilibparser $(PREFIX) $(DINLIBPATH) $(shell echo $(HEADERS)) 
+
+clean:
+	rm -f test *.o *.a *-wrapper.* *.so
+
+
+.PHONY: clean all 
