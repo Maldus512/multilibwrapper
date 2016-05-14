@@ -16,6 +16,7 @@ LIBNAME1=$(subst .so,,$(DINLIB1))
 LIBNAME2=$(subst .so,,$(DINLIB2))
 
 WRAPPERFLAGS= -lthreadwrapper -ldl -lpthread
+
  
 SRC=picotcp/build/modules/*.c picotcp/build/lib/*.c
 OBJS=$(SRC:.c=.o)
@@ -26,10 +27,10 @@ test: $(DINLIB1) $(DINLIB2) $(LIBNAME1)-wrapper.o $(LIBNAME2)-wrapper.o picowebs
 	$(CC) $(CFLAGS)   -o test picowebserver.o $(LIBNAME1)-wrapper.o $(LIBNAME2)-wrapper.o   $(WRAPPERFLAGS) -lvdeplug       
 
 $(LIBNAME1)-wrapper.o: 
-	mlgen $(DINLIB1) $(HEADERS1)
+	mlgen $(DINLIB1) $(HEADERS1) || (cp ./multilibwrapper/mlgen . && ./mlgen $(DINLIB1) $(HEADERS1))
 
 $(LIBNAME2)-wrapper.o:
-	mlgen $(DINLIB2) $(HEADERS2)
+	mlgen $(DINLIB2) $(HEADERS2) || (cp ./multilibwrapper/mlgen . && ./mlgen $(DINLIB2) $(HEADERS2))
 
 $(DINLIB1): $(OBJS)
 	gcc -shared $(OBJS) -lvdeplug -o $(DINLIB1)
@@ -45,7 +46,7 @@ picowebserver.o: picowebserver.c
 	$(CC) $(CFLAGS) -c picowebserver.c
 
 clean:
-	rm -f test *.o *.a *-wrapper.* *.so *.out
+	rm -f test *.o *.a *-wrapper.* *.so *.out mlgen
 	make -C ./dincounter clean
 
 picoclean:

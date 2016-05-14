@@ -22,9 +22,9 @@ counter.o: counter.c
 	$(CC) $(CFLAGS) -fPIC -c counter.c
 
 libcounter-wrapper.o:
-	mlgen $(DINLIB) $(HEADERS)
+	mlgen --verbose $(DINLIB) $(HEADERS) || (cp ./multilibwrapper/mlgen . && ./mlgen --verbose $(DINLIB) $(HEADERS))
 
 clean:
-	rm -f test *.so *.o *.a *-wrapper.*
+	rm -f test *.so *.o *.a *-wrapper.* mlgen
 
 .PHONY: clean all

@@ -11,7 +11,9 @@ LIBNAME=$(subst .so,,$(DINLIB))
 all: $(LIBNAME)-wrapper.o
 
 $(LIBNAME)-wrapper.o: $(PREFIX)/$(LIBNAME)-wrapper.c
+ifdef COMPILE
 	$(CC) -c -o $(PREFIX)/$(LIBNAME)-wrapper.o $(shell echo $(INCLUDES)) -Iinclude $(PREFIX)/$(LIBNAME)-wrapper.c
+endif
 
 $(PREFIX)/$(LIBNAME)-wrapper.c: multilibparser
 	./multilibparser $(PREFIX) $(DINLIBPATH) $(shell echo $(HEADERS)) 

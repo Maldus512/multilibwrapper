@@ -4,6 +4,9 @@ The tool is divided in 2 parts:
     1. A parser that reads the header files and produces the source for the wrapper of each function plus 4 functions to manage multiple loaded instances of the library. The result can then be compiled in an object file to be linked as needed.
     2. A small wrapper for pthread_create() and clone(), to be linked first in the application to manage the assignment of the parent's library instance to new threads.
 
+INSTALL
+make
+sudo make install
 
 HOWTO
 Given an application that uses a certain library, the corresponding multilibwrapper can be generated and simply linked to the original code. The only mandatory requirements are:
@@ -20,6 +23,7 @@ Example usage:
 
 This command will generate 3 files: libshared-wrapper.c, its corrisponding object file (libshared-wrapper.o), and libshared-wrapper.h.
 After this, the object file can be linked with your source and its header, and you can use it in your application.
+Note that if you haven't installed it, the executable must be run with the multilib directory (or a link to it) in the current working directory.
 
 Some examples can be found in the examples folder.
 

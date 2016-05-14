@@ -22,7 +22,7 @@ install: libthreadwrapper.so mlgen
 	cp -r templates /usr/share/multilibwrapper
 	install multilibparser /usr/share/multilibwrapper
 	cp -r include /usr/share/multilibwrapper
-	install Makefile_script /usr/share/multilibwrapper/Makefile
+	install Makefile_script /usr/share/multilibwrapper/
 	install mlgen /usr/local/bin
 	chmod u+s /usr/local/bin/mlgen
 
