@@ -3,10 +3,12 @@ It is a web server with a userspace tcp/ip stack (picotcp) on a virtual network 
 Example usage:
     $ sudo ./setup.sh 
 
-#on another termianl
+#on another terminal
     $ sudo ./test
     /tmp/vde.ctl 192.168.10.2 255.255.255.0
 #program output
+    ...
+
     /tmp/vde.ctl 192.168.10.3 255.255.255.0
 
 Both web servers can now be accessed by a browser, respectively at the address 192.168.10.2 and 192.168.10.3
