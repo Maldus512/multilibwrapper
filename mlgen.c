@@ -49,6 +49,7 @@ int main(int argc, char* argv[], char* envp[]){
         switch (c) {
             case 'h':
                 usage(argv[0]);
+                exit(0);
                 break;
             case 'v':
                 printf("verbosity enabled\n");
