@@ -153,7 +153,6 @@ static void __destructor(void* handle){
     futex_wake(&lock, INT_MAX);
 }
 
-//TODO: manage concurrency problems
 /*add a new library instance*/
 int add_${libname}_handle(){
     char *error;
